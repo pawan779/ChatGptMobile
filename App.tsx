@@ -1,5 +1,6 @@
 import {
   KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   StatusBar,
   Text,
@@ -12,7 +13,10 @@ const App = () => {
       style={{backgroundColor: '#343642', flex: 1}}
       edges={['bottom']}>
       <StatusBar barStyle={'light-content'} />
-      <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
+        enabled>
         <Main />
       </KeyboardAvoidingView>
     </SafeAreaView>

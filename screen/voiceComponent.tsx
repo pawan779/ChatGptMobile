@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {
   Button,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -28,18 +29,32 @@ const VoiceComponent = ({
 
   useEffect(() => {
     function onSpeechResults(e: SpeechResultsEvent) {
-      setResults(e.value ?? []);
+      console.log('onSpeechResults: ', e.value);
+      setResults(Platform.OS == 'ios' ? e.value : [...e.value[0]]);
+      Platform.OS == 'android' && handleSearch(e.value[0]);
     }
     function onSpeechError(e: SpeechErrorEvent) {
       console.error(e);
+      destroyRecognizer();
     }
     Voice.onSpeechError = onSpeechError;
     Voice.onSpeechResults = onSpeechResults;
     toggleListening();
     return function cleanup() {
-      Voice.destroy().then(Voice.removeAllListeners);
+      // Voice.destroy().then(Voice.removeAllListeners);
+      destroyRecognizer();
     };
   }, []);
+
+  const destroyRecognizer = async () => {
+    //Destroys the current SpeechRecognizer instance
+    try {
+      await Voice.destroy();
+    } catch (e) {
+      //eslint-disable-next-line
+      console.error(e);
+    }
+  };
 
   const toggleListening = async () => {
     try {
@@ -62,6 +77,12 @@ const VoiceComponent = ({
       closeModal();
     }
   }, [isSubmit]);
+
+  const handleSearch = (data: any) => {
+    setText(data);
+    setIsSubmit(true);
+  };
+  // console.log('results', results);
 
   return (
     <View style={styles.container}>
@@ -94,6 +115,7 @@ const VoiceComponent = ({
                   key={`result-${index}`}
                   style={{
                     letterSpacing: 2,
+                    color: '#000',
                   }}>
                   {result}
                 </Text>
